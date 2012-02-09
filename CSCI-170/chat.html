@@ -1,0 +1,78 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html dir="ltr">
+    
+    <head>
+        <link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/dojo/1.4/dijit/themes/tundra/tundra.css">
+        <style type="text/css">
+            body, html { font-family:helvetica,arial,sans-serif; font-size:90%; margin:0; width:100%; height:100%;}
+	    #borderContainer {width:75%; height:75%;}
+	    
+        </style>
+    </head>
+    
+    <body class="tundra ">
+      <div dojoType="dijit.layout.BorderContainer" design="sidebar" gutters="true"
+	   liveSplitters="true" id="borderContainer">
+	<div dojoType="dijit.layout.ContentPane" splitter="true" region="leading"
+	     style="width:100px;">
+	  <b>USER LIST</b><br>
+	  <a href="#">meyersh<a/>
+	</div>
+	<div dojoType="dijit.layout.ContentPane" splitter="true" region="center" id="chatPane">
+	  Hi, I'm center!
+	</div>
+	<div dojoType="dijit.layout.ContentPane" splitter="false" region="bottom">
+	  <textarea type="text" name="sentence" value="" dojoType="dijit.form.Textarea"
+		 trim="true" id="sentence" style="width:90%;">CHAT HERE</textarea>
+	  <button type="button" id="sendButton"></button>
+	</div>
+      </div>
+      <div dojoType="dijit.Dialog" id="usernameDialog" title="Please choose a username" execute="">
+	<table>
+	  <tr>
+	    <td><label for="name">Username:</label></td>
+	    <td><input dojoType="dijit.form.TextBox" type="text" name="username" id="username"></td>
+	  </tr>
+	  <tr>
+	    <td colspan=2>
+	      <button dojoType="dijit.form.Button" type="submit" onClick="return dijit.byId('usernameDialog').isValid();">Submit</button>
+	    </td>
+	  </tr>
+	</table>
+    </body>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/dojo/1.4/dojo/dojo.xd.js"
+    djConfig="parseOnLoad: true">
+    </script>
+    <script type="text/javascript">
+        dojo.require("dijit.form.TextBox");
+	dojo.require("dijit.form.Textarea");
+	dojo.require("dijit.form.Button");
+	dojo.require("dijit.Dialog");
+	dojo.require("dijit.layout.ContentPane");
+	dojo.require("dijit.layout.BorderContainer");
+	dojo.addOnLoad(function() {
+	  // Create our dialog for the username...
+	  dijit.byId('usernameDialog').show();
+	  // Create a button
+	  var button= new dijit.form.Button({
+	    label: "SEND",
+            onClick: function() {
+              document.getElementById('chatPane').innerHTML += "<br><b>meyersh:</b> " + document.getElementById('sentence').value;
+	      document.getElementById('sentence').value = '';
+            }
+          }, "sendButton");
+
+          });
+    </script>
+    <!-- NOTE: the following script tag is not intended for usage in real
+    world!! it is part of the CodeGlass and you should just remove it when
+    you use the code
+    <script type="text/javascript">
+        dojo.addOnLoad(function() {
+            if (window.pub) {
+                window.pub();
+            }
+        });
+    </script> -->
+
+</html>

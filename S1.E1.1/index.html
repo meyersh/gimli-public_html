@@ -1,0 +1,104 @@
+<html>
+<head>
+<title>S1.E1.1</title>
+<style>
+.error {
+  color: #000;
+  background: #ffa20f;
+  border: 2px inset #d7b9c9;
+}
+</style>
+<script>
+
+// Check all fields for correctness.
+function check() {
+  field_ids = new Array('a', 'b', 'c', 'd', 'e');
+  fields = new Array();
+
+  for (i = 0; i < field_ids.length; i++)
+    fields.push( document.getElementById( field_ids[i] ) );
+
+  r = 0;
+
+  for (i = 0; i < fields.length; i++)
+  {
+    if (fields[i].value == "")
+    {
+      fields[i].className="error";
+      r = 1
+    }
+    else
+      fields[i].className="";
+   }
+  return r;
+}
+
+
+function getXMLHttpReq()
+{ var req = null;
+
+if (window.XMLHttpRequest)
+   req = new XMLHttpRequest();
+else if (window.ActiveXObject)
+   req = new ActiveXObject(Microsoft.XMLHTTP);
+return req;
+}
+
+function sendData(dataStr, url)
+{ var req = getXMLHttpReq();
+
+if (req == null)
+   return 1;
+
+req.open("POST",
+         url,
+         true);
+req.onreadystatechange = function()
+   {
+   if(req.readyState == 4)
+      {
+      if(req.status == 200)
+      {
+         //alert(req.responseText); /* handle the response here! */
+         document.getElementById('average').innerHTML=req.responseText;
+      }
+      else
+        alert("Error Status: " + req.status + "<br />Error Description: " + req.statusText);
+      }
+   }
+req.setRequestHeader("Content-Type", "text/plain");
+req.send(dataStr);
+return 0;
+}
+
+function submit_data()
+{
+  if (check() != 0)
+    return 0; // don't send data if check doesn't pass!
+  data = ""
+
+  field_ids = new Array('a', 'b', 'c', 'd', 'e');
+  for (i=0; i < field_ids.length; i++)
+    data += document.getElementById(field_ids[i]).value + "\n";
+
+  sendData(data, "s1.e1.1.cgi");
+}
+
+
+</script>
+
+
+</head>
+<body>
+<div name="form-body" style="text-align:center;width:500px;">
+  <input type=text id="a" maxlength=5 size=5/>
+  <input type=text id="b" maxlength=5 size=5/>
+  <input type=text id="c" maxlength=5 size=5/>
+  <input type=text id="d" maxlength=5 size=5/>
+  <input type=text id="e" maxlength=5 size=5/>
+  <input type="button" id="submit" value="Calculate Average" onClick="submit_data();"/>
+  <div id="average" style="margin-left:auto;margin-right:auto;margin-top:10px;border-style:dotted; width:400px;padding:4px;"><i>Your answer will be displayed here.</i></div>
+</div>
+<p> Algorithm used: Sum all numbers, subtract the lowest, and divide by the number of numbers left.</p>
+</body>
+</html>

@@ -1,0 +1,101 @@
+<!--First AJAX Example -->
+<html>
+<head>
+<title> S7.E1.1 - Calculate Baseball Ticket Sales </title>
+<script language = "JavaScript">
+
+function getXMLHttpReq()
+{ var req = null;
+
+if (window.XMLHttpRequest)
+   req = new XMLHttpRequest();
+else if (window.ActiveXObject)
+   req = new ActiveXObject(Microsoft.XMLHTTP);
+return req;
+}
+
+function sendData(dataStr)
+{ var req = getXMLHttpReq();
+
+if (req == null)
+   return 1;
+
+req.open("POST", 
+         "http://gimli.morningside.edu/~meyersh/cgi-bin/S7.E1.1.cgi",
+         true);
+req.onreadystatechange = function()
+   {
+   if(req.readyState == 4)
+      {
+      if(req.status == 200)
+         document.getElementById('responseSpot').innerHTML = req.responseText;
+      else
+         document.getElementById('responseSpot').innerHTML = "Error Status: " + 
+        req.status + "<br />Error Description: " + req.statusText;
+      }
+   }
+req.setRequestHeader("Content-Type", "text/plain");
+req.send(dataStr);
+return 0;
+}
+
+/* 
+ * Shaun's "clear the box if it's at the default" function...
+ * - extra awesomeness, if it's blank reset the box to its default
+ */
+
+function checkDefault(boxObj, defaultvalue)
+{
+
+
+    if (boxObj.value == "") 
+    {
+        boxObj.value=defaultvalue;
+    }
+    else if (boxObj.value == defaultvalue) 
+    {
+        boxObj.value="";
+    }
+}
+
+</script> 
+</head>
+
+<body>
+
+<h3>Ticket Sales:</h3>
+<table>
+<tr>
+<td>Class A Tickets:</td>
+<td> <input id="classAsold" type="text" maxlength="10" size = "10" value=0 onFocus="checkDefault(this, 0);" onBlur="checkDefault(this, 0);" /> </td>
+</tr>
+
+<tr>
+<td>Class B Tickets: </td>
+<td> <input id="classBsold" type="text" maxlength="10" size = "10" value=0 onFocus="checkDefault(this, 0);" onBlur="checkDefault(this, 0);" /> </td>
+</tr>
+
+<tr>
+<td>Class C Tickets:</td>
+<td><input id="classCsold" type="text" maxlength="10" size = "10" value=0 onFocus="checkDefault(this, 0);" onBlur="checkDefault(this, 0);" /></td>
+</tr>
+
+<tr>
+<td colspan=2>
+<input type = "button" VALUE="Process Ticket Sales" onClick="
+    sendData(
+      document.getElementById('classAsold').value + ' ' 
+      + document.getElementById('classBsold').value + ' '
+      + document.getElementById('classCsold').value + '\n'
+      )">
+</td>
+</tr>
+</table>
+<div id="responseSpot">
+Nothing has been received from the server yet...
+</div>
+</body>
+</html>
+
+
+

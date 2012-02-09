@@ -1,0 +1,602 @@
+<HTML> 
+	<HEAD> 
+
+<script>
+/*
+ * AJAX library and helper functions for CSCI-170. 
+ * Boilerplate by Randy, etc by Shaun.
+ * Mar, 2010
+ *
+ */
+
+function raiseNotice(message)
+{
+    var divObj = document.getElementById("notice");
+    divObj.className = "noticenote";
+    divObj.innerHTML = message;
+}
+
+function lowerNotice()
+{
+    var divObj = document.getElementById("notice");
+    if (divObj) 
+    {
+        divObj.className = "";
+        divObj.innerHTML = "";
+    }
+}
+
+function raiseError( message)
+{
+    var divObj = document.getElementById("error");
+    divObj.className = "errornote";
+    divObj.innerHTML = message;
+}
+
+function lowerError()
+{
+    var divObj = document.getElementById("error");
+    if (divObj) 
+    {
+        divObj.className = "";
+        divObj.innerHTML = "";
+    }
+}
+
+function getXMLHttpReq()
+{ 
+    var req = null;
+
+    if (window.XMLHttpRequest)
+	req = new XMLHttpRequest();
+    else if (window.ActiveXObject)
+	req = new ActiveXObject(Microsoft.XMLHTTP);
+    return req;
+}
+
+
+function parseData(response)
+{
+  puzzle = response.split('\n')[0];
+  for (c = 0; c < response.length; c++)
+    {
+    cell = document.getElementById(c);
+    if (cell.value)
+      cell.className = "s0";
+    else 
+      cell.className = "d0";
+ 
+    if (puzzle[c] == 0)
+      cell.value = "";
+    else 
+      cell.value = puzzle[c];
+    }
+}
+
+function sendData(dataStr, url, method) { 
+    raiseNotice("Waiting for solution... (If this takes a long time, the " +
+                "resulting solution may be invalid (unfindable with LOGIC) " +
+                "or Gimli is very busy.)");
+
+    var req = getXMLHttpReq();
+
+    if (req == null)
+	return 1;
+
+    /* if we are using the GET method we need to append the data
+       to the URL after a ?-mark. */
+
+    if ( method == "GET" ) 
+	url += '?' + dataStr.replace(/\n/g, '&');
+
+    req.open(method, url, true);
+    
+    req.onreadystatechange = function()
+	{
+	    if(req.readyState == 4)
+		{
+		  lowerNotice();
+		    if(req.status == 200)
+			{
+			    //updateLog(req.responseText, 'output', false); /* where do we dump the output? */
+			    parseData(req.responseText);
+			    document.getElementById('output').innerHTML += "<br>Data sent/recieved from server!<br>--";
+			}
+		    else
+			document.getElementById('output').innerHTML += "Error Status: "   + req.status +
+				  "<br />Error Description: "  + req.statusText;
+		}
+	}
+
+
+    req.setRequestHeader("Content-Type", "text/plain");
+
+    if (method == "POST")
+	req.send(dataStr);
+    else if (method == "GET")
+	req.send(dataStr);
+
+    return 0;
+}
+
+function solve(cgi)
+{
+  var puzzle="";
+  if (!checkTable())
+    {
+      raiseError("Invalid table, will not submit.<br/>");
+      return;
+    }
+  for (c = 0; c < 81; c++)
+  {
+    if (document.getElementById(c).value == "")
+      puzzle += "0";
+    else 
+      puzzle += document.getElementById(c).value;
+  }
+ 
+  sendData(puzzle, cgi, "POST");
+}
+
+
+function clear_table()
+{
+  lowerError();
+  for (i = 0; i < 81; i++)
+    {
+    document.getElementById(i).value = '';
+    document.getElementById(i).className = 's0';
+    }
+}
+
+function valid_cell(cell)
+/* given a cell address, return its value as an integer. Failures are
+   returned as 0. */
+{
+  if (cell > 0 || cell < 10 || cell == ' ' )
+    return true;
+  return false;
+}
+
+function get_cell(cell)
+{
+  val = parseInt(document.getElementById(cell).value);
+  if (val > 0 && val <= 9)
+    return val;
+  
+  return 0;
+}
+
+function check_valid_row(cell)
+{
+   valid_row = true;
+   
+   /* give us the first element # for the row cell is in. */
+   row = 9 * Math.floor(cell / 9); 
+//   document.getElementById('output').innerHTML += "row: " + row + ": \n";
+   numbers = 0;
+   /* For each element in cell's row: */
+   for (x = row; x < row+9 && valid_row; x++)
+      {
+
+      val = get_cell(x);
+      if (!val) 
+        continue;
+
+ //     document.getElementById('output').innerHTML += x + "(" + val + ")\n";
+
+      if (numbers & (1 << val - 1))
+        valid_row = false;
+
+      numbers |= (1 << val - 1);
+      }
+//      document.getElementById('output').innerHTML += "<br>";
+      return valid_row;
+}
+
+function check_valid_subcell(cell)
+/* Where cell is between 0-8, inclusive. */
+{
+  subcells = new Array(0, 3, 6, 27, 30, 33, 54, 57, 60);
+  cell = subcells[cell];
+  neighbors = new Array();
+  for (row = 0; row < 3; row++)
+    for (col = 0; col < 3; col++)
+      neighbors.push(cell+col + 9*row);
+
+  numbers = 0;
+  valid_subcell = true;
+
+  for (i = 0; i < 9 && valid_subcell == true; i++)
+  {
+    cell = neighbors[i];
+    val = get_cell(cell);
+
+    if (!val)
+      continue;
+
+    if (numbers & (1 << val - 1))
+      valid_subcell = false;
+
+    numbers |= (1 << val - 1);
+  }
+		    
+  return valid_subcell;
+  
+}
+
+function check_valid_col(cell)
+{
+   valid_col = true;
+   
+   /* give us the first element # for the col the cell is in. */
+   col = cell ? 9 % cell : 0;
+   numbers = 0;
+   //document.getElementById('output').innerHTML += "col: " + col + ": \n";
+
+   for (x = col; x <= 72+col; x += 9)
+   {
+    //document.getElementById('output').innerHTML += x + "\n";
+    val = get_cell(x); 
+    if (!val)
+      continue;
+
+    if (numbers & (1 << val - 1))
+      {
+      valid_col = false;
+      break;
+      }
+    numbers |= (1 << val - 1);
+    }
+   //document.getElementById('output').innerHTML += "</br>\n";
+   return valid_col;
+}
+     
+
+
+function checkTable()
+{
+  valid_table = true;
+  //document.getElementById('output').innerHTML += "Checking table!<br/>\n";
+
+  /* Check each cell for valid contents */
+  for (cell = 0; cell < 81; cell++)
+  { 
+    c = document.getElementById(cell);
+    if (!valid_cell(c.value))
+      {
+      c.value = "!";
+      valid_table = false;
+      }
+  }
+
+  /* Check each row + col + subcell */
+  for (cell = 0; cell < 9 && valid_table; cell++) 
+  { 
+    if (check_valid_col(cell) == false)
+      {
+      valid_table = false;
+      raiseError("Invalid column.");
+      break;
+      }
+   if (check_valid_row(cell*9) == false)
+      {
+      valid_table = false;
+      raiseError("Invalid row.");
+      break;
+      }
+   if (check_valid_subcell(cell) == false)
+     {
+     valid_table = false;
+     raiseError("Invalid subcell.");
+     break;
+     }
+  }
+
+  if (valid_table == true)
+    lowerError();
+
+  return valid_table;
+}
+
+function drawTable() 
+{
+  js_table = document.getElementById('js_table'); 
+  var outp = ""
+  outp = "<TABLE CELLSPACING=0 CELLPADDING=0 CLASS=surround_table>\n";
+  for (y = 0; y < 9; y++)
+  {
+    outp += "<TR>\n";
+    for (x = 0; x < 9; x++)
+    { 
+    /* Determine where to put lines */
+    if (x == 3 || x == 6) /* we need a vertical line */
+      if (y == 2 || y == 5) /* we also need a horizonal line */
+        outp += "<TD CLASS=left_and_bottom_border>\n";
+      else /* ONLY vertical line */
+        outp += "<TD class=left_border>\n";
+    else /* No vertical line needed */
+      if (y == 2 || y == 5) /* but we do need a horizonal line */
+        outp += "<TD CLASS=bottom_border>\n";
+      else /* no line at all. */
+        outp += "<TD CLASS=regular_border>\n";
+    id = y*9 + x;
+    outp += "<INPUT SIZE=2 CLASS=s0 AUTOCOMPLETE=off NAME=foo MAXLENGTH=1 " +
+            "onKeyUp='checkTable();' ID='" + id + "' VALUE=''>\n";
+    outp += "</TD>\n";
+    }
+    outp += "</TR>\n";
+  }
+  outp += "</TABLE>\n";
+  js_table.innerHTML = outp;
+}
+
+function text_to_puzzle(puzzle)
+{
+  textObj = document.getElementById('puzzle_input');
+  textObj.value = puzzle;
+  clear_table();
+  for (c = 0; c < puzzle.length; c++)
+  {
+    if (puzzle[c] > 0 && puzzle[c] < 10)
+    {
+    cell = document.getElementById(c);
+    cell.value = puzzle[c];    
+    }
+  }
+}
+
+function puzzle_to_text()
+{
+  textObj = document.getElementById('puzzle_input');
+  textObj.value = "";
+  for (c = 0; c < 81; c++)
+  {
+    cell = document.getElementById(c);
+    if (valid_cell(cell.value) && cell.value)
+      textObj.value += cell.value;
+    else
+      textObj.value += '.';
+  }
+}
+
+
+
+</script>
+		<TITLE>Chelsey, Shaun, and Steven's Sudoku Solver</TITLE>
+		<style>
+
+body {
+  background: url(./background.jpg) no-repeat;
+}
+
+table {
+  background-color: transparent;
+  opacity: .9;
+}
+
+.errornote {
+    font-size: 12px !important;
+    display: block;
+    padding: 4px 5px 4px 25px;
+    border: 1px solid red;
+    color: red;
+    background: #ffc url(./icon_error.gif) 5px .3em no-repeat;
+}
+
+.noticenote {
+    border: 1px solid navy;
+    padding: 10px 5px 4px 40px;
+    font-size: .8em;
+    text: white;
+    background: #eee url(./loading.gif) 5px .3em no-repeat;
+
+}
+
+body {margin:0pt;}
+body,td,.plain {font-family:arial,sans-serif; color:#222222; font-size:9pt;}
+.tm {margin-top: 8pt; margin-bottom:0;}
+table,td {padding:0pt;}
+.stat {color:#990000; font-size:10pt; font-weight:bold;}
+.reset {font-size:8pt; color:#990000;}
+input.reset {border:solid 1px; background-color:transparent; padding:0pt;}
+
+a:link,a:active,a:visited {color:#3333FF; text-decoration:none;}
+a:hover {text-decoration:underline;}
+
+.d0,.d1,.d2,.d3,.s0,.s1,.s2,.s3,.u0,.u1,.u2,.u3,.w0,.w1,.w2,.w3,.v0,.v1,.v2,.v3 {
+  -webkit-appearance: none; 
+  border: solid 0 #fff; 
+  text-align:center; 
+  margin:0; 
+  width:24pt;
+}
+
+.non_editable_field {
+  -webkit-appearance: none; 
+  border: solid 0 #fff; 
+  text-align:center; 
+  margin:0; 
+  width:24pt;
+  font-size:16pt; 
+  font-family:"lucida handwriting","comic sans ms",cursive; 
+  color:#7777DD;
+  background-color: transparent;
+}
+
+.left_and_bottom_border {
+  width:24pt; 
+  height:25pt; 
+  vertical-align:middle; 
+  text-align:center; 
+  font-size:18pt; 
+  font-family:times,serif;
+  border: #DDDDEE solid 1px;
+  border-left: #666699 solid 2px;
+  border-bottom: #666699 solid 2px;
+}
+
+.left_border
+{
+  width:24pt; 
+  height:25pt; 
+  vertical-align:middle; 
+  text-align:center; 
+  font-size:18pt; 
+  font-family:times,serif;
+  border: #DDDDEE solid 1px;
+  border-left: #666699 solid 2px;
+}
+
+.bottom_border
+{
+  width:24pt; 
+  height:25pt; 
+  vertical-align:middle; 
+  text-align:center; 
+  font-size:18pt; 
+  font-family:times,serif;
+  border: #DDDDEE solid 1px;
+  border-bottom: #666699 solid 2px;
+}
+
+.regular_border
+{
+  width:24pt; 
+  height:25pt; 
+  vertical-align:middle; 
+  text-align:center; 
+  font-size:18pt; 
+  font-family:times,serif;
+  border: #DDDDEE solid 1px;
+}
+
+.s0,.s1,.s2,.s3 {font-size:18pt; font-family:times,"times new roman",serif; color:#000000;}
+.u0,.u1,.u2,.u3 {font-size:28pt; font-family:times,"times new roman",serif; color:#000000;}
+.d0,.d1,.d2,.d3 {font-size:16pt; font-family:"lucida handwriting","comic sans ms",cursive; color:#7777DD;}
+.w0,.w1,.w2,.w3 {font-size:10pt; font-family:"lucida handwriting","comic sans ms",cursive; color:#338833;}
+.v0,.v1,.v2,.v3 {font-size:7pt; font-family:"lucida handwriting","comic sans ms",cursive; color:#338833;}
+
+.d0,.s0,.u0,.w0,.v0 {background-color: transparent;}
+
+.d1,.s1,.u1,.w1,.v1,.c1,.e1,.f1,.g1,.h1,.i1,.j1,.k1,.l1,.m1,.n1,.p1,.q1,.r1 {background-color: #FFBFBF;}
+.d2,.s2,.u2,.w2,.v2,.c2,.e2,.f2,.g2,.h2,.i2,.j2,.k2,.l2,.m2,.n2,.p2,.q2,.r2 {background-color: #FF7F7F;}
+.d3,.s3,.u3,.w3,.v3,.c3,.e3,.f3,.g3,.h3,.i3,.j3,.k3,.l3,.m3,.n3,.p3,.q3,.r3 {background-color: #FF3F3F;}
+
+.c0,.c1,.c2,.c3,.e0,.e1,.e2,.e3,.f0,.f1,.f2,.f3,.g0,.g1,.g2,.g3,.h0,.h1,.h2,.h3,.i0,.i1,.i2,.i3 {
+  width:24pt; 
+  height:25pt; 
+  vertical-align:middle; 
+  text-align:center; 
+  font-size:18pt; 
+  font-family:times,serif;
+}
+
+.j0,.j1,.j2,.j3,.k0,.k1,.k2,.k3,.l0,.l1,.l2,.l3,.m0,.m1,.m2,.m3 {width:32pt; height:32pt; vertical-align:middle; text-align:center; font-size:18pt; font-family:times,serif;}
+.n0,.n1,.n2,.n3,.p0,.p1,.p2,.p3,.q0,.q1,.q2,.q3,.r0,.r1,.r2,.r3 {width:44pt; height:44pt; vertical-align:middle; text-align:center; font-size:28pt; font-family:times,serif;}
+
+.surround_table {
+  border-collapse:collapse; 
+  background-color:#FFFFFF; 
+  border-right: #666699 solid 2px;
+  border-left: #666699 solid 2px;
+  border-top: #666699 solid 2px;
+  border-bottom: #666699 solid 2px;
+}
+.t {border-collapse:collapse; background-color:#FFFFFF; border-right: #666699 solid 2px;}
+.c0,.e0,.f0,.g0,.h0,.i0 {border: #DDDDEE solid 1px;}
+.c1,.e1,.f1,.g1,.h1,.i1 {border: #FFBFBF solid 1px;}
+.c2,.e2,.f2,.g2,.h2,.i2 {border: #FF7F7F solid 1px;}
+.c3,.e3,.f3,.g3,.h3,.i3 {border: #FF3F3F solid 1px;}
+.e0,.e1,.e2,.e3,.g0,.g1,.g2,.g3,.i0,.i1,.i2,.i3 {border-left: #666699 solid 2px;}
+.f0,.f1,.f2,.f3,.g0,.g1,.g2,.g3 {border-top: #666699 solid 2px;}
+.h0,.h1,.h2,.h3,.i0,.i1,.i2,.i3 {border-bottom: #666699 solid 2px;}
+
+.i {border-collapse:collapse; border: #000000 solid 2px;}
+.j0,.j1,.j2,.j3,.k0,.k1,.k2,.k3,.l0,.l1,.l2,.l3,.m0,.m1,.m2,.m3 {border: #000000 solid 1px;}
+.k0,.k1,.k2,.k3,.m0,.m1,.m2,.m3 {border-left: #000000 solid 2px;}
+.l0,.l1,.l2,.l3,.m0,.m1,.m2,.m3 {border-top: #000000 solid 2px;}
+
+.o {border-collapse:collapse; border: #000000 solid 4px;}
+.n0,.n1,.n2,.n3,.p0,.p1,.p2,.p3,.q0,.q1,.q2,.q3,.r0,.r1,.r2,.r3 {border: #000000 solid 2px;}
+.p0,.p1,.p2,.p3,.r0,.r1,.r2,.r3 {border-left: #000000 solid 4px;}
+.q0,.q1,.q2,.q3,.r0,.r1,.r2,.r3 {border-top: #000000 solid 4px;}
+
+		</style>
+	</HEAD> 
+	
+	<BODY BGCOLOR="#F9F9FF"><TABLE WIDTH=100% HEIGHT=100% CELLSPACING=16 border=0><TR> 
+		
+		<TD WIDTH=* BGCOLOR="#F9F9FF" ><TABLE WIDTH=100% HEIGHT=100% CELLSPACING=0 border=0> 
+ 
+
+			<TR VALIGN="middle"><TD ALIGN="center"> 
+ 
+			<FORM NAME="board" METHOD=POST ACTION="./" STYLE="margin:0;"> 
+			
+			<P STYLE="margin:0;"> 
+
+<table border=0 cellspacing=10>
+<tr>
+<td colspan=2>
+  <h2>Chelsey, Shaun, and Steven's Sudoku Solver Extraordinaire</h2>
+  Any puzzle left incomplete is probably un-solvable. 
+</td>
+</tr>
+  <tr>
+    <td colspan=2 height=40px>
+      <div id="error"></div>
+      <div id="notice"></div>
+    </td>
+  </tr>
+<tr>
+<td>
+      <h3>Playing board:</h3>
+      <div id="js_table"></div>
+      <script>drawTable();</script>
+    </td>
+    <td
+       <p><h3>Controls:</h3>
+<input type="button" value="Solve (Grade Me)!" onClick="solve('sudoku-hybrid.cgi');"/><br/>
+	 <input type="button" value="Solve (Just Using Logic Algorithms)!" onClick="solve('sudoku.cgi');"/><br/>
+
+
+	 <!--   <input type="button" value="Solve (Using DLX Algorithm)!" onClick="solve('dlx.cgi');"/><br/> -->
+	 <input type="button" value="Solve (Just Shaun's DLX Algorithm)!" onClick="solve('sudoku-dlx.cgi');"/><br/>
+<!--	 <input type="button" value="Check!" onClick="checkTable();"/><br/> -->
+	 <input type="button" value="Clear Board" onClick="clear_table();"/><br/>
+	 <input type="button" value="Source(Grade Me)" onClick="window.location='sudoku-hybrid.cpp.txt'">
+	 <input type="button" value="Source(Logic)" onClick="window.location='sudoku.cpp.txt'">
+	 <input type="button" value="Source(DLX)" onClick="window.location='sudoku-dlx.cpp.txt'"><br/>
+       <p></p>
+<h3>Sample Puzzles</h3>
+<ul>
+<li><a href="#" 
+       onClick="text_to_puzzle('.......12........3..23..4....18....5.6..7.8.......9.....85.....9...4.5..47...6...');">Platinum Blonde</a> 
+  <small>(Unsolvable in logic mode--in <br/>several seconds the [wrong] answer will appear. <br/>One of the hardest puzzles ever.)</small></li>
+<li><a href="#" 
+       onClick="text_to_puzzle('3...2...4.....8.23.784...6.8..1..4...2..8..5...7..9..6.8...614.59.8.....6...3...8');">Chelsey's Ultra Hard Puzzle</a> 
+  <small>A puzzle from<br/>Chelsey's sudoku book (hardest in the book)<br/> but solvable by logic (with one Nishio guess).</small></li>
+<li><a href="#"
+       onClick="text_to_puzzle('....3..51..36......2..948......5..7.59.....62.8..2......491..8......24..23..8....');">Palms puzzle</a> 
+  <small>our R&D puzzle (Solveable by Logic.)</small></li>
+
+
+</ul>
+			  </td>
+			</tr>
+</tr>
+<td colspan=2>
+<p/>
+<h3>Save/load (for easy copy+paste):</h3>
+<input type="text" id='puzzle_input' size=82 maxlength=81/ 
+value="....3..51..36......2..948......5..7.59.....62.8..2......491..8......24..23..8...."><br/>
+<input type="button" value="Insert puzzle" onClick="text_to_puzzle(document.getElementById('puzzle_input').value);"/>
+<input type="button" value="Save board" onClick="puzzle_to_text();"/>
+
+</td>
+</tr>
+</table>
+<div id="output" style="width:50%;position:absolute;margin:50px;"></div>
+</BODY> 
+</HTML>

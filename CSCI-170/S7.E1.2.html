@@ -1,0 +1,240 @@
+<!--First AJAX Example -->
+<META NAME="AUTHOR" CONTENT="Shaun Meyer">
+<META NAME="DESCRIPTION" CONTENT="Some simple file I/O">
+<html>
+<head>
+
+<title> S7.E1.2 - Some simple File I/O </title>
+
+<style>
+    #responseSpot {
+    font-size:small;
+    width:50%;
+    height:150px;
+    overflow:hidden;
+    font-family:monospace;
+    }
+    .instructions {
+    font-size:small;
+    width:50%;
+    }
+</style>
+<script language = "JavaScript">
+
+function getXMLHttpReq()
+{ var req = null;
+
+if (window.XMLHttpRequest)
+   req = new XMLHttpRequest();
+else if (window.ActiveXObject)
+   req = new ActiveXObject(Microsoft.XMLHTTP);
+return req;
+}
+
+function updateLog(html)
+{
+    divObj = document.getElementById("responseSpot");
+    divObj.innerHTML += html;
+    divObj.scrollTop = divObj.scrollHeight;
+}
+
+/* 
+ * I'm trying something new, returning all my values as 
+ * key=value which I intend to parse with string.split
+ * method and set in the appropriate divs... Here goes.
+ */
+
+
+function parseData(data) 
+{
+    var temp = new Array();
+    var lines = new Array();
+
+    lines = data.split('\n');
+
+    for (l in lines)
+    {
+        temp = lines[l];
+        temp = temp.split('=');
+        var key = temp[0];
+        var val = temp[1];
+        if (key) {
+             if ( key == "notice" )
+                updateLog("<br>Notice: " + val);
+             else if ( key == "total" )
+                updateLog("<br><b>Total: " + val + "</b>");
+             if (document.getElementById(key) != null)
+             {
+                 document.getElementById(key).value = val;
+                 document.getElementById(key).defaultValue = val;
+             }
+            }
+        }
+
+}
+
+function sendData(dataStr, url)
+{ var req = getXMLHttpReq();
+
+if (req == null)
+   return 1;
+
+req.open("POST", 
+         url, 
+         true);
+req.onreadystatechange = function()
+   {
+   if(req.readyState == 4)
+      {
+      if(req.status == 200)
+      {
+         parseData(req.responseText);
+            updateLog("<br>Data sent/recieved from server!<br>--");
+      }
+      else
+        updateLog("Error Status: " + req.status + "<br />Error Description: " + req.statusText);
+      }
+   }
+req.setRequestHeader("Content-Type", "text/plain");
+req.send(dataStr);
+return 0;
+}
+
+/* 
+ * Shaun's "clear the box if it's at the default" function...
+ * extra awesomeness, if it's blank reset the box to its default
+ * "boxObj" is gotten from `this` 
+ * "setfocus" is 1 for onFocus and 0 for onBlur so we know if 
+ * a textbox has focus or no (so we know if we're coming or going)
+ */
+
+function checkDefault(boxObj, setfocus)
+{
+    boxObj.hasFocus = setfocus;
+
+    if (boxObj.hasFocus && boxObj.value ==  boxObj.defaultValue) 
+        boxObj.value = "";
+    else if (!boxObj.hasFocus && boxObj.value == "")
+        boxObj.value = boxObj.defaultValue;
+}
+
+function isDigit( t )
+{
+    if (isNaN(parseInt(t.value)) && t.value != "") {
+        alert("Integers only! Bad Human, Bad!");
+        t.value = 0;
+    }
+}
+
+function saveDigits( )
+{
+    fields = new Array('a', 'b', 'c', 'd', 'e');
+    var uploadstring = '';
+
+    // put together our upload stringy
+    for each (var i in fields)
+    {
+        var myfield = document.getElementById(i);
+        uploadstring += myfield.value + ' ';
+        myfield.defaultValue = myfield.value;
+    }
+    sendData(uploadstring, 'http://gimli.morningside.edu/~meyersh/cgi-bin/S7.E1.2-write.cgi');
+}
+
+</script> 
+</head>
+
+<body>
+
+<h3>Some Numbers:</h3>
+<div class="instructions">
+<p><b>Instructions</b> - Modify fields A through E to your hearts content. Choosing "Load / Process" will 
+replace these numbers with whatever is stored on disk. Choosing "Save" will save fields A through E
+to disk for subsequent loads.</p
+<p>Bonus! Upon saving or loading the numbers each boxes' "defaultValue" method will be set to the value thus
+incorporating my "checkDefault()" function into the user interface.  When you give focus to a field its 
+default digit will be cleared and if you leave without changing anything it will be replaced.</p>
+<p>All activity is reported in the "log" field below.</p>
+</div>
+<table>
+<tr bgcolor=#CCCCFF>
+  <td>A:</td> <td>B:</td> <td>C:</td> <td>D:</td> <td>E:</td>
+<tr>
+<td> 
+  <input id="a" 
+  type="text"
+  maxlength="10" 
+  size = "10" 
+  value=0 
+  onKeyUp="isDigit(this)" 
+  onFocus="checkDefault(this, 1);" 
+  onBlur="checkDefault(this, 0);" /> 
+  </td>
+<td> 
+  <input id="b" 
+  type="text"
+  maxlength="10" 
+  size = "10" 
+  value=0 
+  onKeyUp="isDigit(this)" 
+  onFocus="checkDefault(this, 1);" 
+  onBlur="checkDefault(this, 0);" /> 
+  </td>
+<td> 
+  <input id="c" 
+  type="text"
+  maxlength="10" 
+  size = "10" 
+  value=0 
+  onKeyUp="isDigit(this)" 
+  onFocus="checkDefault(this, 1);" 
+  onBlur="checkDefault(this, 0);" /> 
+  </td>
+<td> 
+  <input id="d" 
+  type="text"
+  maxlength="10" 
+  size = "10" 
+  value=0 
+  onKeyUp="isDigit(this)" 
+  onFocus="checkDefault(this, 1);" 
+  onBlur="checkDefault(this, 0);" /> 
+  </td>
+<td> 
+  <input id="e" 
+  type="text"
+  maxlength="10" 
+  size = "10" 
+  value=0 
+  onKeyUp="isDigit(this)" 
+  onFocus="checkDefault(this, 1);" 
+  onBlur="checkDefault(this, 0);" /> 
+  </td>
+  </tr>
+<tr bgcolor=#CCCCFF>
+<td align=right>Total:</td>
+<td> 
+  <input id="total"
+  type="text"
+  maxlength="10"
+  size="10"
+  value="" />
+  </td>
+
+  <td colspan=3 align=right>
+  <input type = "button" VALUE="Save" onClick="saveDigits();" />
+  <input type = "button" VALUE="Load / Process" onClick="
+    sendData('', 'http://gimli.morningside.edu/~meyersh/cgi-bin/S7.E1.2-read.cgi')" >
+  </td>
+</tr>
+
+</table>
+
+<div id="responseSpot">
+<h3>Log:</h3>
+</div>
+</body>
+</html>
+
+
+

@@ -1,0 +1,49 @@
+<html>
+<head>
+<script language="javascript" src="/~meyersh/ajax.js"></script>
+<title>S12.P1 - Guestbook Ajax</title>
+</head>
+<body>
+<p>
+<table>
+<tr>
+<td colspan=3>
+<form action="https://gimli.morningside.edu/~meyersh/cgi-bin/S11.P1.cgi"
+      method="POST" enctype="text/plain">
+<input type="textbox" value="New comment" size=70 maxlength=70 id="comment" name="comment"
+       onFocus="checkDefault(this, 1)" onBlur="checkDefault(this, 0)"><br />
+</td>
+<tr>
+<td>
+<input type="textbox" value="Username" size=25 maxlength=25 id="username" name="username"
+       onFocus="checkDefault(this, 1)" onBlur="checkDefault(this, 0)">
+</td>
+<td>
+<input type="textbox" value="Password?" size=25 maxlength=25 id="password" name="password"
+       onFocus="checkDefault(this, 1)" onBlur="checkDefault(this, 0)">
+</td>
+<td>
+<input type="button"  value="Submit"
+       onClick='sendData(
+       "action=post\ncomment="+document.getElementById("comment").value+
+       "\nusername="+document.getElementById("username").value+
+       "\npassword="+document.getElementById("password").value, 
+       "https://gimli.morningside.edu/~meyersh/cgi-bin/S12.P1.cgi", "POST"); document.getElementById("password").value="Password?";'>
+<input type="button" value="Refresh" 
+       onClick='sendData("action=refresh\npassword="+document.getElementById("password").value, "https://gimli.morningside.edu/~meyersh/cgi-bin/S12.P1.cgi", "POST")'>
+<input type="button" value="Quit"
+       onClick='document.getElementById("state").innerHTML="Thank you for using this WebApp. Ready to leave? Try <a href=http://www.google.com/>Google.com</a>."'>
+</form>
+</td>
+</tr>
+<tr>
+<td colspan=3>
+<div id="state"></div>
+</td>
+</tr>
+</table>
+<div id="guestbook"></div>
+
+<small><div id="responseSpot"></div></small>
+</body>
+</html>

@@ -1,0 +1,98 @@
+<html>
+<head>
+<title> S3.P1 </title>
+<script language = "JavaScript">
+
+function parityType()
+{
+  if (document.getElementById('even').checked)
+    return "EVEN";
+  else
+    return "ODD";
+}
+
+function getXMLHttpReq()
+{ var req = null;
+
+if (window.XMLHttpRequest)
+   req = new XMLHttpRequest();
+else if (window.ActiveXObject)
+   req = new ActiveXObject(Microsoft.XMLHTTP);
+return req;
+}
+
+function sendData(dataStr)
+{ var req = getXMLHttpReq();
+
+if (req == null)
+   return 1;
+
+req.open("POST", 
+         "s3.p.cgi",
+         true);
+req.onreadystatechange = function()
+   {
+   if(req.readyState == 4)
+      {
+      if(req.status == 200)
+         document.getElementById('responseSpot').innerHTML = req.responseText;
+      else
+         document.getElementById('responseSpot').innerHTML = "Error Status: " + 
+        req.status + "<br />Error Description: " + req.statusText;
+      }
+   }
+req.setRequestHeader("Content-Type", "text/plain");
+req.send(dataStr);
+return 0;
+}
+</script> 
+</head>
+
+<body>
+  <h2><i>HAM-DEHAM!: a 32-databit Hamming code encoder / decoder</i></h2>
+  <p> By: Group 3 (Steven Throne and Shaun Meyer)
+
+  <p>Select odd or even parity:
+<form>  <p><label>
+      <input name = "kind" type = "radio", id="even"
+             value = "1" checked = "checked" />Even</label>
+    <br><label>
+      <input name = "kind" type = "radio"
+             value = "0" />Odd</label>
+</form>
+  <p>
+    <table border=0 width=90%>
+      <tr>
+	<td> <!-- ENCODER -->
+	  <h3>HAM-Encoder</h3>
+	  Your 32-bit binary number here:<br/>
+	  <input id="encode-binary" type="text" maxlength="32" size="45" /><br />
+	  
+	  <br/>
+	  <input type = "button" VALUE="Display Encoded Hamming"
+		 onClick="sendData('ENCODE\n' + document.getElementById('encode-binary').value + 
+			  '\n' + parityType() + '\n')">
+	  
+	</td>
+	<td> <!-- DECODER -->
+	  <h3>HAM-Decoder</h3>
+	  38-bit binary codeword here.<br/>
+	  <input id="decode-binary" type="text" maxlength="38" size="45" /><br />
+
+	  <br/>
+	  <input type = "button" VALUE="Display Decoded Hamming"
+		 onClick="sendData('DECODE\n' + document.getElementById('decode-binary').value + 
+			  '\n' + parityType() + '\n')">
+	  
+	</td>
+     </tr>
+      <tr>
+	<td colspan=2>
+	  <div id="responseSpot">
+	    OK, nothing has been sent to the server yet.
+	  </div>
+	  </td>
+	</tr>
+    </table>
+</body>
+</html>

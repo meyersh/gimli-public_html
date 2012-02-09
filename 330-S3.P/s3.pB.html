@@ -1,0 +1,62 @@
+<html>
+<head>
+<title> S3.P2 </title>
+<script language = "JavaScript">
+
+function getXMLHttpReq()
+{ var req = null;
+
+if (window.XMLHttpRequest)
+   req = new XMLHttpRequest();
+else if (window.ActiveXObject)
+   req = new ActiveXObject(Microsoft.XMLHTTP);
+return req;
+}
+
+function sendData(dataStr)
+{ var req = getXMLHttpReq();
+
+if (req == null)
+   return 1;
+
+req.open("POST", 
+         "http://gimli.morningside.edu/~sdt001/cgi-bin/S3.PAcgi",
+         true);
+req.onreadystatechange = function()
+   {
+   if(req.readyState == 4)
+      {
+      if(req.status == 200)
+         document.getElementById('responseSpot').innerHTML = req.responseText;
+      else
+         document.getElementById('responseSpot').innerHTML = "Error Status: " + 
+        req.status + "<br />Error Description: " + req.statusText;
+      }
+   }
+req.setRequestHeader("Content-Type", "text/plain");
+req.send(dataStr);
+return 0;
+}
+
+</script> 
+</head>
+
+<body>
+Please enter your 38-bit binary number and selected even or odd for the parity for Hamming decoding.<br/>
+<input id="binary" type="text" maxlength="38" size="38" /><br />
+Select odd or even parity:
+  <label>Even
+  <input name = "kind" type="radio"
+    value="1" checked="checked"/></label
+  <label>Odd
+  <input name="kind" type="radio"
+    value="0" checked="checked"/></label>
+  <br/>
+<input type = "button" VALUE="Display Hamming"
+onClick="sendData(document.getElementById('binary /n kind /n ').value + '\n')">
+<hr/><hr/>
+<div id="responseSpot">
+OK, nothing has been sent to ther server yet.
+</div>
+</body>
+</html>

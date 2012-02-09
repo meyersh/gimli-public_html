@@ -1,0 +1,99 @@
+<html>
+<head>
+
+<script language="JavaScript">
+
+function getXMLHttpReq()
+{ var req = null;
+
+if (window.XMLHttpRequest)
+   req = new XMLHttpRequest();
+else if (window.ActiveXObject)
+   req = new ActiveXObject(Microsoft.XMLHTTP);
+return req;
+}
+
+function sendData(dataStr, url)
+{ var req = getXMLHttpReq();
+
+if (req == null)
+   return 1;
+
+req.open("POST",
+         url,
+         true);
+req.onreadystatechange = function()
+   {
+   if(req.readyState == 4)
+      {
+      if(req.status == 200)
+      {
+         //alert(req.responseText); /* handle the response here! */
+         machinechoice = req.responseText.split('\n')[0];
+         document['machine_choice'].src = document[machinechoice].src;
+         result = req.responseText.split('\n')[1];
+         if (result == -1)
+           document.getElementById('result').innerHTML='You Lose.';
+         else if (result == 0)
+           document.getElementById('result').innerHTML='A draw.';
+         else if (result == 1)
+           document.getElementById('result').innerHTML='You Win!';
+      }
+      else
+        alert("Error Status: " + req.status + "<br />Error Description: " + req.statusText);
+      }
+   }
+req.setRequestHeader("Content-Type", "text/plain");
+req.send(dataStr);
+return 0;
+}
+
+
+function submit_choice(img_obj) {
+choice = img_obj.name[0];
+document['human_choice'].src = img_obj.src;
+sendData(choice + '\n', 'http://gimli.morningside.edu/~meyersh/prs/prs.cgi');
+}
+</script>
+
+</head>
+
+<body bgcolor=0f4a72 style="color:84c0e7;">
+
+<table width=100%>
+  <tr>
+    <td align=center><h3>HUMAN</h3></td>
+    <td align=center><h3>The Arena</h3></td>
+    <td align=center><h3>MACHINE</h3></td>
+  </tr>
+<tr>
+ <td>
+   <img src="paper_yellow.png" name="paper" onClick="submit_choice(this);"/><br>
+   <img src="rock_yellow.png" name="rock" onClick="submit_choice(this);"/><br>
+   <img src="scissors_yellow.png" name="scissors" onClick="submit_choice(this);"/><br>
+ </td>
+ <td align=center>
+
+   <IMG name="human_choice" src="blank_blue.png"/> vs <IMG name="machine_choice" src="blank_blue.png"/>
+   <p> Result: <div id="result"></div><p>
+   <p> Commands: 
+     <ul> 
+       <li> <del>Next round</del></li>
+       <li> <del>Reset game</del></li>
+     </ul>
+   </p>
+ </td>
+ <td>
+   <img src="paper_blue.png" name="p"  onClick="document['machine_choice'].src=this.src;"/><br>
+   <img src="rock_blue.png" name="r" onClick="document['machine_choice'].src=this.src;"/><br>
+   <img src="scissors_blue.png" name="s" onClick="document['machine_choice'].src=this.src;"/><br>
+ </td>
+</tr>
+</table>
+
+<h3>Instructions</h3>
+Click on your (human-side) choice to "throw" a given hand. The choice will be indicated in the Arena, the computer will be notified and its choice will be displayed likewise with a notification regarding the victor.
+
+<p>Good luck.
+</body>
+</html>

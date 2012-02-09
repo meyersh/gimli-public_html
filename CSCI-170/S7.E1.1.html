@@ -1,0 +1,164 @@
+<!--First AJAX Example -->
+<META NAME="AUTHOR" CONTENT="Shaun Meyer">
+<META NAME="DESCRIPTION" CONTENT="Calculate Baseball Ticket Sales">
+<html>
+<head>
+
+<title> S7.E1.1 - Calculate Baseball Ticket Sales </title>
+
+<style>
+    #responseSpot {
+    font-size:x-small;
+    }
+    #classAtotal, #classBtotal, #classCtotal, #grandtotal {
+    font-family:monospace;
+    text-align:right;
+    padding-right:4px;
+    }
+</style>
+<script language = "JavaScript">
+
+function getXMLHttpReq()
+{ var req = null;
+
+if (window.XMLHttpRequest)
+   req = new XMLHttpRequest();
+else if (window.ActiveXObject)
+   req = new ActiveXObject(Microsoft.XMLHTTP);
+return req;
+}
+
+/* 
+ * I'm trying something new, returning all my values as 
+ * varname=value which I intend to parse with string.split
+ * method and set in the appropriate divs... Here goes.
+ */
+
+
+function parseData(data) 
+{
+    var temp = new Array();
+    var lines = new Array();
+
+    lines = data.split('\n');
+
+    for (l in lines)
+    {
+        temp = lines[l];
+        temp = temp.split('=');
+        var key = temp[0];
+        var val = temp[1];
+        if (key) {
+            //alert("key: " + key + " val: " + val);
+             document.getElementById(key).innerHTML = val;
+            }
+        }
+
+}
+
+function sendData(dataStr)
+{ var req = getXMLHttpReq();
+
+if (req == null)
+   return 1;
+
+req.open("POST", 
+         "http://gimli.morningside.edu/~meyersh/cgi-bin/S7.E1.1.cgi",
+         true);
+req.onreadystatechange = function()
+   {
+   if(req.readyState == 4)
+      {
+      if(req.status == 200)
+      {
+         parseData(req.responseText);
+         //document.getElementById('responseSpot').innerHTML = req.responseText;
+         document.getElementById('responseSpot').innerHTML = "Data recieved from server!";
+     }
+      else
+         document.getElementById('responseSpot').innerHTML = "Error Status: " + 
+        req.status + "<br />Error Description: " + req.statusText;
+      }
+   }
+req.setRequestHeader("Content-Type", "text/plain");
+req.send(dataStr);
+return 0;
+}
+
+/* 
+ * Shaun's "clear the box if it's at the default" function...
+ * - extra awesomeness, if it's blank reset the box to its default
+ */
+
+function checkDefault(boxObj, defaultvalue)
+{
+
+
+    if (boxObj.value == "") 
+    {
+        boxObj.value=defaultvalue;
+    }
+    else if (boxObj.value == defaultvalue) 
+    {
+        boxObj.value="";
+    }
+}
+
+function isDigit( t )
+{
+    if (isNaN(parseInt(t.value)) && t.value != "") {
+        alert("Integers only! Bad Human, Bad!");
+        t.value = 0;
+    }
+}
+
+</script> 
+</head>
+
+<body>
+
+<h3>Ticket Sales:</h3>
+<table>
+<tr bgcolor=#CCCCFF>
+<td>Type:</td> <td>Quantity:</td> <td> (Total) Value: </td>
+</tr>
+
+<tr>
+<td>Class A Tickets:</td>
+<td> <input id="classAsold" type="text" maxlength="10" size = "10" value=0 onKeyUp="isDigit(this)" onFocus="checkDefault(this, 0);" onBlur="checkDefault(this, 0);" /> </td>
+<td><div id="classAtotal">[ ]</div></td>
+</tr>
+
+<tr bgcolor=#CCCCFF>
+<td>Class B Tickets: </td>
+<td> <input id="classBsold" type="text" maxlength="10" size = "10" value=0 onFocus="checkDefault(this, 0);" onBlur="checkDefault(this, 0);" /> </td>
+<td><div id="classBtotal">[ ]</div></td>
+</tr>
+
+<tr>
+<td>Class C Tickets:</td>
+<td><input id="classCsold" type="text" maxlength="10" size = "10" value=0 onFocus="checkDefault(this, 0);" onBlur="checkDefault(this, 0);" /></td>
+<td><div id="classCtotal">[ ]</div></td>
+</tr>
+
+<tr bgcolor=#CCCCFF>
+<td>
+<input type = "button" VALUE="Process Tickets" onClick="
+    sendData(
+      document.getElementById('classAsold').value + ' ' 
+      + document.getElementById('classBsold').value + ' '
+      + document.getElementById('classCsold').value + '\n'
+      )">
+</td>
+<td align=right>Total:</td>
+<td><div id="grandtotal">[ ]</div></td>
+</tr>
+</table>
+<div id="responseSpot">
+Nothing has been received from the server yet...
+</div>
+</body>
+</html>
+
+
+

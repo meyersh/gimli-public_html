@@ -1,0 +1,32 @@
+#!/usr/bin/env python
+print "Content-Type: text/html"
+print ""
+print ""
+
+import  cgitb, os
+cgitb.enable()
+
+base = './'
+
+contents=""
+
+allowed = open("allowed.txt").read().split('\n')
+
+if os.environ['QUERY_STRING']:
+    if os.environ['QUERY_STRING'].startswith('file='):
+        filename = os.environ['QUERY_STRING'].split('=')[1]
+        if os.path.exists(base + filename):
+                if (filename in allowed):
+                    contents = open(filename).read()
+                else:
+                    print "You don't have permission to access this."
+        else:
+            print filename, 'does not exist!'
+
+
+for line in open("index.html"):
+    line = line.replace('{{CODE}}', contents)
+    line = line.replace('{{FILENAME}}', filename)
+    print line
+
+    

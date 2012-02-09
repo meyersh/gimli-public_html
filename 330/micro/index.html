@@ -1,0 +1,466 @@
+<html>
+<head>
+<title>CSCI 330 Project 5 (Microarchitecture)</title>
+<style>
+.error {
+  color: #000;
+  background: #ffa20f;
+  border: 2px inset #d7b9c9;
+}
+
+input[type=checkbox] {
+width: 100px;
+}
+
+input,select {
+vertical-align:middle;
+margin: 5px;
+}
+
+label {
+margin: 0px 0px 0px 10px;
+font-weight:bold;
+text-decoration:underline;
+float: left;
+
+}
+</style>
+<script>
+
+var field_ids = new Array();
+var numFields = 5; 
+
+function addFields(num)
+{
+  // remember the values from the boxes:
+  var fvalues = new Array();
+  for (i = 0; i< numFields; i++)
+    fvalues.push(document.getElementById("f"+i).value);
+
+  t = num+numFields;
+  for (i = numFields; i < t; i++)
+  {
+    document.getElementById('fields').innerHTML += 
+       "<input type='text' id=f"+i+" maxlength=5 size=5/>";
+    numFields++;
+    fvalues.push("");
+  }
+
+  // write the values back into the boxes:
+  for (i = 0; i < numFields; i++)
+    document.getElementById("f"+i).value = fvalues[i];
+
+}
+
+// Check all fields for correctness.
+function check() {
+  //field_ids = new Array('a', 'b', 'c', 'd', 'e');
+  var sum = 0;
+
+  for (i = 0; i < numFields; i++)
+  {
+ //   fields.push( document.getElementById( "f" + i ) );
+    sum += document.getElementById("f"+i).value;
+  }
+
+  r = 0;
+
+  for (i = 0; i < numFields; i++)
+  {
+    if (document.getElementById("f"+i).value == "")
+    {
+      document.getElementById("f"+i).className="error";
+      r = 1
+    }
+    else
+      document.getElementById("f"+i).className="";
+   }
+
+  if (sum == 0)
+    {
+    document.getElementById("average").innerHTML = "No average because you gave no input.";
+   return 1;
+    }
+
+  return 0;
+}
+
+function checkbox_to_binary(chkboxid)
+{
+  chkbox = document.getElementById(chkboxid);
+  if (!chkbox)
+    alert(chkboxid);
+  if (chkbox.checked == 1)
+    return 1;
+  else
+    return 0;
+}
+
+function checkboxes_to_binary(bits) 
+{
+
+  if (bits == "JAM")
+  {
+    jambits = "B" + checkbox_to_binary("JAM1") + 
+              checkbox_to_binary("JAM2") +
+              checkbox_to_binary("JAM3") +
+              checkbox_to_binary("JAM4");
+    return jambits;
+  }
+
+  if (bits == "ZONERD")
+  {
+    zonebits = "B" + checkbox_to_binary("ZR1") + 
+	       checkbox_to_binary("ZR2") + 
+               checkbox_to_binary("ZR3") + 
+               checkbox_to_binary("ZR4");
+    return zonebits;
+  }
+
+  if (bits == "REGRD")
+  { 
+    regbits = "B" + checkbox_to_binary("PC1") + 
+              checkbox_to_binary("PC2") +
+              checkbox_to_binary("IR1") +
+              checkbox_to_binary("IR2") +
+              checkbox_to_binary("R111_1") +
+              checkbox_to_binary("R111_2") +
+              checkbox_to_binary("R110_1") +
+              checkbox_to_binary("R110_2") +
+              checkbox_to_binary("R101_1") +
+              checkbox_to_binary("R101_2") +
+              checkbox_to_binary("R100_1") +
+              checkbox_to_binary("R100_2") +
+              checkbox_to_binary("R011_1") +
+              checkbox_to_binary("R011_2") +
+              checkbox_to_binary("R010_1") +
+              checkbox_to_binary("R010_2") +
+              checkbox_to_binary("R001_1") +
+              checkbox_to_binary("R001_2") +
+              checkbox_to_binary("R000_1") +
+              checkbox_to_binary("R000_2");
+    return regbits;
+  }
+  if (bits = "PRMMEM") 
+  { 
+    prmbits = "B" + checkbox_to_binary("PRMMEM_ACCESS") + 
+              checkbox_to_binary("PRMMEM_RW");
+    return prmbits;
+  }
+}
+
+function ge(id) {
+  obj = document.getElementById(id);
+  if (!obj) 
+    alert(id);
+  return document.getElementById(id);
+}
+
+function gv(id) {
+  return ge(id).value;
+}
+
+function assemble_form_data() {
+  output = "";
+  output += gv('next_instr').replace(/ /g, '') + ' ';
+  output += checkboxes_to_binary("JAM") + ' ';
+  output += gv('ALUSHIFT') + gv('ALUCTRL') + ' ';
+  output += checkboxes_to_binary("ZONERD") + ' ';
+  output += checkboxes_to_binary("REGRD") + ' ';
+  output += checkboxes_to_binary("PRMMEM") + ' ' ;
+  output += gv('MADSRC') + ' ';
+  output += gv('MDBSRC') + ' ';
+  output += gv('BSRC') + ' ';
+  output += gv('ASRC') + ' ';
+  return output;
+}
+
+function clear_form() {
+  ge('next_instr').value = "";
+
+  /* clear checkboxes */
+  ge('JAM1').checked = 0;
+  ge('JAM2').checked = 0;
+  ge('JAM3').checked = 0;  
+  ge('JAM4').checked = 0;
+  ge('ZR1').checked = 0;
+  ge('ZR2').checked = 0;
+  ge('ZR3').checked = 0;
+  ge('ZR4').checked = 0;
+  ge('PC1').checked = 0;
+  ge('PC2').checked = 0;
+  ge('IR1').checked = 0;
+  ge('IR2').checked = 0;
+  ge('R111_1').checked = 0;
+  ge('R111_2').checked = 0;
+  ge('R110_1').checked = 0;
+  ge('R110_2').checked = 0;
+  ge('R101_1').checked = 0;
+  ge('R101_2').checked = 0;
+  ge('R100_1').checked = 0;
+  ge('R100_2').checked = 0;
+  ge('R011_1').checked = 0;
+  ge('R011_2').checked = 0;
+  ge('R010_1').checked = 0;
+  ge('R010_2').checked = 0;
+  ge('R001_1').checked = 0;
+  ge('R001_2').checked = 0;
+  ge('R000_1').checked = 0;
+  ge('R000_2').checked = 0;
+  ge('PRMMEM_ACCESS').checked = 0;
+  ge('PRMMEM_RW').checked = 0;
+
+  /* reset drop-down boxen */
+  ge('MADSRC').selectedIndex = 0;
+  ge('MDBSRC').selectedIndex = 0;
+  ge('ASRC').selectedIndex = 0;
+  ge('BSRC').selectedIndex = 0;
+  ge('ALUSHIFT').selectedIndex = 0;
+  ge('ALUCTRL').selectedIndex = 0;
+
+}
+
+function getXMLHttpReq()
+{ var req = null;
+
+if (window.XMLHttpRequest)
+   req = new XMLHttpRequest();
+else if (window.ActiveXObject)
+   req = new ActiveXObject(Microsoft.XMLHTTP);
+return req;
+}
+
+function sendData(dataStr, url)
+{ var req = getXMLHttpReq();
+
+if (req == null)
+   return 1;
+
+req.open("POST",
+         url,
+         true);
+req.onreadystatechange = function()
+   {
+   if(req.readyState == 4)
+      {
+      if(req.status == 200)
+      {
+         //alert(req.responseText); /* handle the response here! */
+         document.getElementById('average').innerHTML = req.responseText;
+      }
+      else
+        alert("Error Status: " + req.status + "<br />Error Description: " + req.statusText);
+      }
+   }
+req.setRequestHeader("Content-Type", "text/plain");
+req.send(dataStr);
+return 0;
+}
+
+function submit_data()
+{
+   sendData(assemble_form_data(), "330-p5.cgi");
+}
+
+
+</script>
+
+
+</head>
+<body>
+<div name="form-body" style="float:left" >
+<div id="fields">
+  <label for=next_instr>Next Instruction:</label><br><small>(Prefix with B for binary and D for decimal address.)</small><br>
+  <input type=text id="next_instr" size=22 value="Next Instr"/><br>
+
+
+  <!-- JAM BITS -->
+  <p>
+  <label for=JAM1 for=JAM2 for=JAM3 for=JAM4>JAM bits</label><br>
+  <input type=checkbox id=JAM1 value=JAM1>JAMN</input>
+  <input type=checkbox id=JAM2 value=JAM2>JAMZ</input>
+  <input type=checkbox id=JAM3 value=JAM3>JAMP</input>
+  <input type=checkbox id=JAM4 value=JAM4>JAMC</input>
+
+  <!-- ALU CONTROL -->
+
+  <br/>
+  <p>
+  <label for=ALUCTRL>ALU Function</label><br>
+  <select id=ALUSHIFT>
+    <option value="B00">No Shift</option>
+    <option value="B01">Arithmetic Shift Right</option>
+    <option value="B10">Logical left shift 1 bit</option>
+    <option value="B11">Logical right shift 1 bit</option>
+  </select>
+
+  <select id=ALUCTRL>
+    <option value="1">---</option>
+    <option value="011000">A</option>
+    <option value="010100">B</option>
+    <option value="011010">!A</option>
+    <option value="101100">!B</option>
+    <option value="111100">A+B</option>
+    <option value="111101">A+B+1</option>
+    <option value="111001">A+1</option>
+    <option value="110101">B+1</option>
+    <option value="111111">B-A</option>
+    <option value="110110">B-1</option>
+    <option value="111011">-A</option>
+    <option value="001100">A AND B</option>
+    <option value="011100">A OR B</option>
+    <option value="010000">0</option>
+    <option value="110001">1</option>
+    <option value="110010">-1</option>
+  </select>
+
+  <!-- ZONE READ -->
+  <p>
+  <label for=ZR1 for=ZR2 for=ZR3 for=ZR4>Zone Read</label>
+  <br/>
+  <input type=checkbox id=ZR1 value=ZR1>Zone 3</input>
+  <input type=checkbox id=ZR2 value=ZR2>Zone 2</input>
+  <input type=checkbox id=ZR3 value=ZR3>Zone 1</input>
+  <input type=checkbox id=ZR4 value=ZR4>Zone 0</input>
+
+  <!-- REGISTER READ -->
+  <br/>
+  <label for=PC1 for=PC2 for=IR1 for=IR2 for=R111 for=R110 
+	 for=R101 for=R100 for=R011 for=R010 for=R001 for=R000>Register Read
+  <small>
+      <br>ACCESS: Read a value from the busses?
+      <br>BUS SELECT: Get a value from the C-Bus</small></label>
+<br/><br><br>
+  <input type=checkbox id=PC1 value=PC1>PC Access</input>
+  <input type=checkbox id=PC2 value=PC2>PC Bus Select</input>
+  <br/>
+  <input type=checkbox id=IR1 value=IR1>IR Access</input>
+  <input type=checkbox id=IR2 value=IR1>IR Bus Select</input>
+  <br/>
+  <input type=checkbox id=R111_1 value=R111>R7 Access</input>
+  <input type=checkbox id=R111_2 value=R111>R7 Bus Select</input>
+  <br/>
+  <input type=checkbox id=R110_1 value=R110>R6 Access</input>
+  <input type=checkbox id=R110_2 value=R110>R6 Bus Select</input>
+  <br/>
+  <input type=checkbox id=R101_1 value=R101>R5 Access</input>
+  <input type=checkbox id=R101_2 value=R101>R5 Bus Select</input>
+  <br/>
+  <input type=checkbox id=R100_1 value=R100>R4 Access</input>
+  <input type=checkbox id=R100_2 value=R100>R4 Bus Select</input>
+  <br/>
+  <input type=checkbox id=R011_1 value=R011>R3 Access</input>
+  <input type=checkbox id=R011_2 value=R011>R3 Bus Select</input>
+  <br/>
+  <input type=checkbox id=R010_1 value=R010>R2 Access</input>
+  <input type=checkbox id=R010_2 value=R010>R2 Bus Select</input>
+  <br/>
+  <input type=checkbox id=R001_1 value=R001>R1 Access</input>
+  <input type=checkbox id=R001_2 value=R001>R1 Bus Select</input>
+  <br/>
+  <input type=checkbox id=R000_1 value=R000>R0 Access</input>
+  <input type=checkbox id=R000_2 value=R000>R0 Bus Select</input>
+
+  <!-- PRIMARY MEMORY -->
+  <br/>
+  <label for=PRMMEM>Primary Memory</label><br>
+  <input type=checkbox id=PRMMEM_ACCESS value=PRMMEM_ACCESS>Access</input>
+  <input type=checkbox id=PRMMEM_RW value=PRMMEM_RW>R/W</input>
+
+  <!-- MAD SRC -->
+  <br/>
+  <select id=MADSRC>
+    <option value="D-1">MAD SRC</option>
+    <option value="B0000">Register 0</option>
+    <option value="B0001">Register 1</option>
+    <option value="B0010">Register 2</option>
+    <option value="B0011">Register 3</option>
+    <option value="B0100">Register 4</option>
+    <option value="B0101">Register 5</option>
+    <option value="B0110">Register 6</option>
+    <option value="B0111">Register 7</option>
+    <option value="B1110">IR</option>
+    <option value="B1111">PC</option>
+    <option value="B1000">Zone 0</option>
+    <option value="B1001">Zone 1</option>
+    <option value="B1010">Zone 2</option>
+    <option value="B1011">Zone 3</option>
+  </select>
+
+  <!-- MDB SRC -->
+  <select id=MDBSRC>
+    <option value="D-1">MDB SRC</option>
+    <option value="B0000">Register 0</option>
+    <option value="B0001">Register 1</option>
+    <option value="B0010">Register 2</option>
+    <option value="B0011">Register 3</option>
+    <option value="B0100">Register 4</option>
+    <option value="B0101">Register 5</option>
+    <option value="B0110">Register 6</option>
+    <option value="B0111">Register 7</option>
+    <option value="B1110">IR</option>
+    <option value="B1111">PC</option>
+    <option value="B1000">Zone 0</option>
+    <option value="B1001">Zone 1</option>
+    <option value="B1010">Zone 2</option>
+    <option value="B1011">Zone 3</option>
+  </select>
+
+  <!-- A SRC -->
+  <br/>
+  <select id=ASRC>
+    <option value="D-1">A SRC</option>
+    <option value="B0000">Register 0</option>
+    <option value="B0001">Register 1</option>
+    <option value="B0010">Register 2</option>
+    <option value="B0011">Register 3</option>
+    <option value="B0100">Register 4</option>
+    <option value="B0101">Register 5</option>
+    <option value="B0110">Register 6</option>
+    <option value="B0111">Register 7</option>
+    <option value="B1110">IR</option>
+    <option value="B1111">PC</option>
+    <option value="B1000">Zone 0</option>
+    <option value="B1001">Zone 1</option>
+    <option value="B1010">Zone 2</option>
+    <option value="B1011">Zone 3</option>
+</select>
+
+  <!-- B SRC -->
+  <select id=BSRC>
+    <option value="D-1">B SRC</option>
+    <option value="B0000">Register 0</option>
+    <option value="B0001">Register 1</option>
+    <option value="B0010">Register 2</option>
+    <option value="B0011">Register 3</option>
+    <option value="B0100">Register 4</option>
+    <option value="B0101">Register 5</option>
+    <option value="B0110">Register 6</option>
+    <option value="B0111">Register 7</option>
+    <option value="B1110">IR</option>
+    <option value="B1111">PC</option>
+    <option value="B1000">Zone 0</option>
+    <option value="B1001">Zone 1</option>
+    <option value="B1010">Zone 2</option>
+    <option value="B1011">Zone 3</option>
+</select>
+  
+</div>
+  <input type=button id="clear" value="Clear Form" onClick="clear_form();"/>
+  <input type=button id="submit" value="Compute Microinstruction" onClick="submit_data();"/>
+  <div id="average" style="margin-top:10px;border-style:dotted;width:700px;padding:4px;"><i>Your answer will be displayed here.</i></div>
+</div>
+
+<div style="float:right;width:40%">
+<iframe src="http://gimli.morningside.edu/~jld007/mcsci.html" width="100%" height="100%"></iframe>
+</div>
+
+<!--
+<div style="padding:10px;margin:10px">
+<p>Feel free to abuse this form however you please - it's surprisingly durable. You might get garbage out but it's only because you put 
+garbage in. All humans are human and humans make mistakes. 
+<p>Copyleft 2010 Shaun Meyer & Steven Throne
+</div>
+-->
+</body>
+</html>

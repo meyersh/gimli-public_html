@@ -1,0 +1,18 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:fb="http://www.facebook.com/2008/fbml">
+<script src="http://static.ak.connect.facebook.com/js/api_lib/v0.4/FeatureLoader.js.php" type="text/javascript"></script>
+<fb:login-button></fb:login-button>
+<script type="text/javascript"> 
+FB.init("2c55b910ac8c469713bf73cc17fa204d", "/~meyersh/bookspace/xd_receiver.htm", {"reloadIfSessionStateChanged":true}); 
+FB_RequireFeatures(["Api"]);
+var flds = new Array('uid', 'first_name', 'last_name', 'name', 'current_location', 'pic_square', 'profile_url', 'sex');
+var t = FB.apiClient;
+var me = new Array('1633399300');
+alert(t.users_getInfo(me, flds));
+
+</script>
+<input type="button" onClick='alert(FB.Connect.get_loggedInUser());'>
+<input type="button" value="gets_getinfo" 
+  onClick='alert(
+    window.FB.ApiClient.users_getInfo(me, flds)
+    );
+    '>

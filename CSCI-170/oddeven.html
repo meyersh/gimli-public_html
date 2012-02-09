@@ -1,0 +1,59 @@
+<!--First AJAX Example -->
+<html>
+<head>
+<title> AJAX Example </title>
+<script language = "JavaScript">
+
+function getXMLHttpReq()
+{ var req = null;
+
+if (window.XMLHttpRequest)
+   req = new XMLHttpRequest();
+else if (window.ActiveXObject)
+   req = new ActiveXObject(Microsoft.XMLHTTP);
+return req;
+}
+
+function sendData(dataStr)
+{ var req = getXMLHttpReq();
+
+if (req == null)
+   return 1;
+
+req.open("POST", 
+         "http://gimli.morningside.edu/~meyersh/cgi-bin/oddeven.cgi",
+         true);
+req.onreadystatechange = function()
+   {
+   if(req.readyState == 4)
+      {
+      if(req.status == 200)
+         document.getElementById('responseSpot').innerHTML = req.responseText;
+      else
+         document.getElementById('responseSpot').innerHTML = "Error Status: " + 
+        req.status + "<br />Error Description: " + req.statusText;
+      }
+   }
+req.setRequestHeader("Content-Type", "text/plain");
+req.send(dataStr);
+return 0;
+}
+
+</script> 
+</head>
+
+<body>
+
+Width: 
+<input id="num" type="text" maxlength="10" size = "10" value=7 /><br />
+<input type = "button" VALUE="Process Data"
+onClick="sendData(document.getElementById('num').value + '\n')">
+
+<div id="responseSpot">
+Nothing has been received from the server yet...
+</div>
+</body>
+</html>
+
+
+

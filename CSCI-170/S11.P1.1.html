@@ -1,0 +1,216 @@
+<!--First AJAX Example -->
+<META NAME="AUTHOR" CONTENT="Shaun Meyer">
+<META NAME="DESCRIPTION" CONTENT="Server-Side POST Dump Tool">
+<html>
+<head>
+
+<title>S11.P1.1 - Server-Side POST Dump Tool!) </title>
+
+<style>
+    #responseSpot {
+    font-size:small;
+    width:50%;
+    height:150px;
+    overflow:hidden;
+    font-family:monospace;
+    }
+    #hex {
+    font-size:small;
+    font-family:monospace;
+    }
+    .instructions {
+    font-size:small;
+    width:50%;
+    }
+</style>
+<script language = "JavaScript">
+
+function getXMLHttpReq()
+{ var req = null;
+
+if (window.XMLHttpRequest)
+   req = new XMLHttpRequest();
+else if (window.ActiveXObject)
+   req = new ActiveXObject(Microsoft.XMLHTTP);
+return req;
+}
+
+function updateLog(html)
+{
+    divObj = document.getElementById("responseSpot");
+    divObj.innerHTML += html;
+    divObj.scrollTop = divObj.scrollHeight;
+}
+
+/* 
+ * I'm trying something new, returning all my values as 
+ * key=value which I intend to parse with string.split
+ * method and set in the appropriate divs... Here goes.
+ */
+
+
+function parseData(data) 
+{
+    var temp = new Array();
+    var lines = new Array();
+
+    lines = data.split('\n');
+
+    for (l in lines)
+    {
+        temp = lines[l];
+        temp = temp.split('=');
+        var key = temp[0];
+        var val = temp[1];
+        if (key) {
+             if ( key == "notice" )
+                updateLog("<br>Notice: " + val);
+             else if ( key == "clear" )
+                document.getElementById('splitstring').innerHTML = "";
+             else if ( key == "output" )
+                document.getElementById('splitstring').innerHTML += val + "<br>";
+             if (document.getElementById(key) != null)
+             {
+                 document.getElementById(key).innerHTML = val;
+             }
+            }
+        }
+
+}
+
+function sendData(dataStr, url, method)
+{ 
+
+var method = (method == null) ? "POST" : method;
+
+var req = getXMLHttpReq();
+
+if (req == null)
+   return 1;
+
+req.open("POST", url, true);
+
+req.onreadystatechange = function()
+   {
+   if(req.readyState == 4)
+      {
+      if(req.status == 200)
+      {
+         parseData(req.responseText);
+            updateLog("<br>Data sent/recieved from server!<br>--");
+      }
+      else
+        updateLog("Error Status: " + req.status + "<br />Error Description: " + req.statusText);
+      }
+   }
+
+req.setRequestHeader("Content-Type", "text/plain");
+req.send(dataStr);
+return 0;
+}
+
+/* 
+ * Shaun's "clear the box if it's at the default" function...
+ * extra awesomeness, if it's blank reset the box to its default
+ * "boxObj" is gotten from `this` 
+ * "setfocus" is 1 for onFocus and 0 for onBlur so we know if 
+ * a textbox has focus or no (so we know if we're coming or going)
+ */
+
+function checkDefault(boxObj, setfocus)
+{
+    boxObj.hasFocus = setfocus;
+
+    if (boxObj.hasFocus && boxObj.value ==  boxObj.defaultValue) 
+        boxObj.value = "";
+    else if (!boxObj.hasFocus && boxObj.value == "")
+        boxObj.value = boxObj.defaultValue;
+}
+
+function isDigit( t )
+{
+    if (isNaN(parseInt(t.value)) && t.value != "") {
+        alert("Integers only! Bad Human, Bad!");
+        t.value = 0;
+    }
+}
+
+function exchangeData( boxObj )
+{
+    var uploadstring = boxObj.value;
+
+    sendData(uploadstring, 'http://gimli.morningside.edu/~meyersh/cgi-bin/S8.E1.1.cgi');
+}
+
+function modSubmit(formid, method) 
+{
+    formid = document.getElementById(formid);
+    formid.method = method;
+    //document.getElementById('inputFormSubmit').value = 'Submit ' + method;
+    formid.submit();
+}
+
+
+</script> 
+</head>
+
+<body>
+
+<h3>POST / GET DUMP UTILITY:</h3>
+<!-- <div class="instructions">
+<p><b>Instructions</b> - Type something in the box (separated by '&' marks, ideally) and press 'Display Substrings'</p>
+</div>
+<table>
+<tr bgcolor=#CCCCFF>
+  <td>&-Separated String:</td> 
+<td> 
+  <input id="string" 
+  type="text"
+  maxlength="70" 
+  size = "70" 
+  onBlur='checkDefault(this, 0);'
+  onFocus='checkDefault(this,1);'
+  value="One potato&two potato&three potato&four" /> 
+  </td>
+<td>
+  <button value="Separate" onClick="
+				    sendData( document.getElementById('string').value, 
+				      'http://gimli.morningside.edu/~meyersh/cgi-bin/S9.E1.1.cgi'
+				      );"> Display Substrings</button>
+</td>
+  </tr>
+<tr bgcolor=#CCCCFF>
+<td align=right>Output:</td>
+<td colspan=2><div id="splitstring">Nothing yet submitted for translation</div>
+</td>
+</tr>
+
+</table>
+
+<div id="responseSpot">
+<h3>Log:</h3>
+</div>-->
+<form action="http://gimli.morningside.edu/~meyersh/cgi-bin/S11.P1.cgi" 
+      method="GET" enctype="multipart/form-data" id='inputForm'>
+<table>
+<tr>
+  <td colspan=2>
+    <textarea id="input" value="" name="input"></textarea>
+    <input type="file" id="fileinput" name="fileinput"></input>
+</td>
+</tr>
+<tr>
+  <td>
+    <input type="button" onClick="modSubmit('inputForm', 'POST');" value="POST!" style='width:100%;' type="submit">
+</td>
+<td>
+  <input type="button" onClick="modSubmit('inputForm', 'GET');" value="GET!" style='width:100%;'>
+</td>
+</tr>
+</table>
+</form>
+</body>
+</html>
+
+
+

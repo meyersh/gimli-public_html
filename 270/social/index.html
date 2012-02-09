@@ -1,0 +1,78 @@
+<html>
+<head>
+<title>CSCI 270 - Final Project (Project 2)</title>
+<link rel="stylesheet" type="text/css" href="styles/base.css" />
+</head>
+<body>
+<div style="width:50%; margin-left:25px; margin-top:25px; float:left">
+<h2>Welcome to CSCI 270: Final Project</h2>
+<p>Formerly known as <em>Project 2</em></p>
+<p>By: Shaun Meyer. Dec, 2010</p>
+<h3>Description:</h3>
+<p>My Social Networking site (Copyleft ShaunCO) is built primarily using the MVC (Model, View, Controller) paradigm using much AJAX.
+<p>It's back-end is now 100% MySQL and accesses the database via a generalized wrapper aroundthe C-MySQL API provided from MySQL.com 
+<p>The whiteboard (public + private) and messaging (public + private) systems all use the same messaging class I've generalized by providing an "entity" abstraction. Each entity, in essence, gets its own "inbox" with no practical limit to number of entities. All messages have a globally unique ID field by which they are referenced and allowed to REFER-TO for threading purposes.
+<p>Message access control utilizes a custom Blacklist module which maps directly to an Entity and allows creating/removing/checking-membership from a given entity. The only caveat here is since Randy directed the private whiteboard to allow NO-ONE by default (and my <em>magick</em> keywords---ALL and NONE---were not finished I simply directed the user to reverse the list...
+<h3>Special Features:</h3>
+<ul>
+  <li><b>Multiple session support</b>
+  <p>Multiple sessions are supported natively due to the design of the session table. 
+  </li>
+  <li><b>COOL FEATURE A: <i>Current Users / Online Users</i></b>
+    <p>A list of currently-online users.</li>
+  <li><b>COOL FEATURE B: <i>MVC design</i></b>. <a href="http://en.wikipedia.org/wiki/Model%E2%80%93View%E2%80%93Controller" target="_new">Wikipedia if you don't know about Model-View-Controller.</a>
+</ul>
+
+<div style="border-width:10px;border-color:grey;border-style:double; padding:10px;">
+<h3>Show me, Show me! (Gimme, gimme!)</h3>
+<ul>
+  <li><a href="https://gimli.morningside.edu/~meyersh/270/social/login.cgi">The Social Networking Site</a></li>
+  <li><a href="http://gimli.morningside.edu/~meyersh/cgi-bin/viewvc.cgi/meyersh/src/270/Projects/2%20%28social%29/">Online source viewer for all project code</a></li>
+</ul>
+</div>
+
+</div>
+<div style="float:right; margin:25px; width:40%">
+<h3>Features <em>I wish I had</em>:</h3>
+<ul>
+<li><b>crypt.h support</b> I mentioned this off-hand to Todd (and he did it, how awesome is he?) My passwords are stored, all, plain text in the database. Wildly secure.</li>
+<li><b>Multiple Session <em>Management</em></b>. Yeah, I can show you online users but that is kind of a cop-out. I <em>really</em> wanted to do a page like g-mail has where you can manage all your current sessions. Example, you left your account logged in at the library you could disconnect that session from home. (Or, vice-versa). Ran out of time and ambition.
+<li><b>Magick words in Blacklist module.</b> Yeah, you know, ALL, NONE. You can't always name who you want to name. But why stop there? I'd probably have RegEx support if left to it.</li>
+</ul>
+<h3>Embarrassing features I <em>do</em> have:</h3>
+<ul>
+  <li><b>Improper sanitizing on message posts</b>---random characters weren't a problem with files! Just don't use apostrophes and you'll be fine. Crap, I've used four in this bullet alone!</li>
+</ul>
+<p>These are hours of my life I'm never getting back (source code line counts)...
+<pre>
+meyersh@gimli:~/working-src/270/Projects/2 (social)$ make count
+wc -l *.cpp *.hpp  html/js/ajax.js html/*.html 
+    82 checksession.cpp
+   200 cookies.cpp
+    28 database.cpp
+    23 db.cpp
+   740 home.cpp
+   238 login.cpp
+    64 logout.cpp
+   893 messaging.cpp
+    37 randomStr.cpp
+    16 ses-obj-drv.cpp
+   386 session.cpp
+    75 cookies.hpp
+    21 database.hpp
+   122 db.hpp
+    13 randomStr.hpp
+    68 session.hpp
+   103 shaunscgi.hpp
+   300 html/js/ajax.js
+    39 html/index.html
+   155 html/login.html
+   210 html/Perms.html
+   231 html/private.html
+   321 html/profile.html
+   231 html/public.html
+   244 html/whiteboard.html
+   177 html/whiteboardPerms.html
+  5017 total
+</pre>
+</div>

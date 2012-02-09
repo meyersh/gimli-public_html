@@ -1,0 +1,25 @@
+#!/usr/bin/env python
+import os
+print "Content-Type: text/html"
+print ""
+print ""
+print "<html><body><pre>"
+
+slices={}
+
+for file in os.listdir('.'):
+    if file.endswith('.cgi'):
+        file = file.split('.')
+        if file[0].startswith('S'):
+            print file
+
+for file in os.listdir('/home/meyersh/public_html/'):
+    if file.endswith('.html'):
+        file = file.split('.')
+        if file[0].startswith('S'):
+            if file[0] not in slices:
+                slices[file[0]] = []
+            slices[file[0]] = {}
+            slices[file[0]][file[1]] = file[2]
+print slices            
+print "</pre></body></html>"
