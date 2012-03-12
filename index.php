@@ -56,6 +56,16 @@
     <div class="belief">
       <div class="column">
 		<div class="belief top">
+		  <h3>Pente</h3>
+		  <h4>Pente WebApp</h4>
+			<p><a href="431/pente">A work in progress, should be awesome.</a></p>
+		</div>
+      </div>
+    </div>
+
+    <div class="belief">
+      <div class="column">
+		<div class="belief top">
 		  <h3>Git</h3>
 		  <h4>Git is Magic</h4>
 		  <p>You won't regret learning this powerful code management tool. Try this 
