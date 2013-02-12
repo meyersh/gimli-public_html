@@ -10,9 +10,9 @@ function getXMLHttpReq()
     var req = null;
 
     if (window.XMLHttpRequest)
-	req = new XMLHttpRequest();
+	    req = new XMLHttpRequest();
     else if (window.ActiveXObject)
-	req = new ActiveXObject(Microsoft.XMLHTTP);
+	    req = new ActiveXObject(Microsoft.XMLHTTP);
     return req;
 }
 
@@ -26,7 +26,7 @@ function getXMLHttpReq()
 function urlDecode(encoded)
 {
     if (encoded == null)
-	return null;
+	    return null;
 
     var plaintext = "";
     var HEXCHARS = "0123456789ABCDEFabcdef";
@@ -35,20 +35,20 @@ function urlDecode(encoded)
 	{
 	    var ch = encoded.charAt(i);
 	    if (ch == "+") {
-		plaintext += " ";
-		//i++;
+		    plaintext += " ";
+		    //i++;
 	    }
 	    else if (ch == "%") {
-		if (i < (encoded.length-2) 
-		    && HEXCHARS.indexOf(encoded.charAt(i+1)) != -1
-		    && HEXCHARS.indexOf(encoded.charAt(i+2)) != -1 ) {
-		    plaintext += unescape( encoded.substr(i,3) );
-		    i += 2;
-		}
+		    if (i < (encoded.length-2) 
+		        && HEXCHARS.indexOf(encoded.charAt(i+1)) != -1
+		        && HEXCHARS.indexOf(encoded.charAt(i+2)) != -1 ) {
+		        plaintext += unescape( encoded.substr(i,3) );
+		        i += 2;
+		    }
 	    }
 	    else {
-		plaintext += ch;
-		//i++;
+		    plaintext += ch;
+		    //i++;
 	    }
 	    
 	} // while
@@ -144,46 +144,46 @@ function parseData(data)
 		    var key = temp[0];
 		    var val = urlDecode(temp[1]);
 		    if (key) {
-			if ( key == "notice" )
+			    if ( key == "notice" )
 			    {
-				updateLog("<br>Notice: " + val);
-				raiseNotice(val);
+				    updateLog("<br>Notice: " + val);
+				    raiseNotice(val);
 			    }
-			else if ( key == "action" )
+			    else if ( key == "action" )
 			    {
-				if ( val == "refresh" )
-				    location.reload(true);
+				    if ( val == "refresh" )
+				        location.reload(true);
 			    }
-			else if ( key == "editable" )
+			    else if ( key == "editable" )
 			    { 
-				if ( val == "true" && document.getElementById('edit'))
+				    if ( val == "true" && document.getElementById('edit'))
 				    {
-					document.getElementById('edit').style.visibility='visible';
-					document.getElementById('saveWhiteboardButton').value='View/Edit Whiteboard';
-					document.getElementById('modifyWhiteboard').style.visibility='visible';
+					    document.getElementById('edit').style.visibility='visible';
+					    document.getElementById('saveWhiteboardButton').value='View/Edit Whiteboard';
+					    document.getElementById('modifyWhiteboard').style.visibility='visible';
 				    }
-				else if (val == "false" && document.getElementById('edit'))
+				    else if (val == "false" && document.getElementById('edit'))
 				    {
-					document.getElementById('edit').style.visibility='hidden';
-					document.getElementById('saveWhiteboardButton').value='View Whiteboard';
-					document.getElementById('modifyWhiteboard').style.visibility='hidden';
+					    document.getElementById('edit').style.visibility='hidden';
+					    document.getElementById('saveWhiteboardButton').value='View Whiteboard';
+					    document.getElementById('modifyWhiteboard').style.visibility='hidden';
 				    }
-				
+				    
 			    }
-					 
-			       
-			else if ( key == "redirect" )
-			    window.location = val;
-			else if ( key == "error" )
-			    raiseError( val );
-			else if ( key == "clear" )
-			    document.getElementById('splitstring').innerHTML = "";
-			else if ( key == "output" )
-			    document.getElementById('splitstring').innerHTML += val + "<br>";
-			if (document.getElementById(key) != null)
+				
+			    
+			    else if ( key == "redirect" )
+			        window.location = val;
+			    else if ( key == "error" )
+			        raiseError( val );
+			    else if ( key == "clear" )
+			        document.getElementById('splitstring').innerHTML = "";
+			    else if ( key == "output" )
+			        document.getElementById('splitstring').innerHTML += val + "<br>";
+			    if (document.getElementById(key) != null)
 			    {
-				document.getElementById(key).innerHTML = val;
-				document.getElementById(key).value = val;
+				    document.getElementById(key).innerHTML = val;
+				    document.getElementById(key).value = val;
 			    }
 		    }
 		}
@@ -192,19 +192,19 @@ function parseData(data)
 
 
 
-    
+
 
 function sendData(dataStr, url, method, parseFunction) { 
     var req = getXMLHttpReq();
 
     if (req == null)
-	return 1;
+	    return 1;
 
     /* if we are using the GET method we need to append the data
        to the URL after a ?-mark. */
 
     if ( method == "GET" ) 
-	url += '?' + dataStr.replace(/\n/g, '&');
+	    url += '?' + dataStr.replace(/\n/g, '&');
 
     req.open(method, url, true);
     
@@ -214,7 +214,8 @@ function sendData(dataStr, url, method, parseFunction) {
 		{
 		    if(req.status == 200)
 			{
-			    //updateLog(req.responseText, 'output', false); /* where do we dump the output? */
+			    console.info(req.responseText);
+
                 if (parseFunction)
                     parseFunction(req.responseText);
                 else
@@ -222,20 +223,19 @@ function sendData(dataStr, url, method, parseFunction) {
 			    console.log("Data sent/recieved from server!");
 			}
 		    else
-			updateLog("Error Status: " 
-				  + req.status 
-				  + "<br />Error Description: " 
-				  + req.statusText);
+			    updateLog("Error Status: " 
+				          + req.status 
+				          + "<br />Error Description: " 
+				          + req.statusText);
 		}
 	}
-
 
     req.setRequestHeader("Content-Type", "text/plain");
 
     if (method == "POST")
-	req.send(dataStr);
+	    req.send(dataStr);
     else if (method == "GET")
-	req.send(dataStr);
+	    req.send(dataStr);
 
     return 0;
 }
@@ -298,7 +298,7 @@ function Submit(formid)
     var url = frm.action;
     var inpt = frm.input.value;
     sendData(inpt, url, method);
- }
+}
 //
 // EOF
 //
