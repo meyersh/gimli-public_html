@@ -1,0 +1,80 @@
+<html>
+  <head>
+    <title>The Messenger</title>
+    <style>
+    body {
+      font-family: sans-serif;
+    }
+    .odd {
+      background:#c1dad6;
+    }
+    .even {
+      background:#acd1e9;
+    }
+
+    div.even, div.odd {
+      padding:18;
+      margin:6;
+    }
+
+    #posts {
+      width:50%;
+      font-size: small;
+      background-color:#f5fafa;
+      height:100%;
+      /* font-weight:bold; */
+    }
+
+    .signature {
+      font-size: medium;
+      font-weight: normal;
+    }
+
+    a.control {
+      font-size: small;
+    }
+
+    textarea {
+      width: 30em;
+      height: 16em;
+      border:1px solid #000000;
+      background-color:#f5fafa;
+    }
+
+    label {
+      clear: left;
+      float: left;
+      padding: 3px 10px 2px;
+      text-align: right;
+      width: 60px;
+    }
+
+    div.submission {
+      float:right;
+      margin-top:auto;
+      word-wrap: break-word;
+      width: 30em;
+      position:fixed;
+      right:0;
+    }
+    </style>
+
+    <script type="text/javascript" src="http://gimli.morningside.edu/~meyersh/js/ajax.js"></script>
+    <script type="text/javascript" src="messenger.js"></script>
+  </head>
+  <body>
+    <h3>Messenger!</h3>
+
+    <div id="submission" class="submission"><h4>New Submission:</h4>
+      <form id="submission_form">
+        <label for="name">NAME:</label> <input type="text" id="name" name="name" value="Anonymous"/><br/>
+        <label for="reply-to">REPLY-TO:</label> <input type="text" id="reply-to" name="reply-to" value="0"/><br/>
+        <label for ="post">POST:</label> <textarea id="post" name="post"/></textarea><br/>
+        <label for "submitbtn">Publish!</label><input type="button" id="submitbtn" value="Upload" onClick="submit_post();"/>
+       <input type="button" id="loadbtn" value="Load new posts" onClick="load_posts();"/>
+	    <p>(Basic formatting: Surround text in *astericks*, /slashes/, and _underlines_ for basic markup.)</p>
+      </form>
+    </div>
+    <div id="posts"></div>      
+  </body>
+</html>
